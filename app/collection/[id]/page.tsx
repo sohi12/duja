@@ -1,113 +1,132 @@
-"use client";
-
-import React, { useState } from "react";
-import { useCart } from "@/app/context/CartContext";
-import { ArrowLeft, ShoppingBag } from "lucide-react";
 import Link from "next/link";
+import { createClient } from "next-sanity";
 
-const products = [
-  {
-    id: 1,
-    name: "Sand Linen Blouse",
-    price: 1100,
-    image:
-      "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&q=80&w=800",
-    desc: "100% Organic Egyptian linen with a relaxed, breathable fit.",
-  },
-  {
-    id: 2,
-    name: "Olive Earth Blouse",
-    price: 980,
-    image:
-      "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&q=80&w=800",
-    desc: "Soft-washed cotton linen blend with natural wooden buttons.",
-  },
-  {
-    id: 3,
-    name: "Terracotta Wrap Blouse",
-    price: 1050,
-    image:
-      "https://images.unsplash.com/photo-1509631179647-0177331693ae?auto=format&fit=crop&q=80&w=800",
-    desc: "Tailored wrap-style linen blouse designed for effortless layering.",
-  },
-];
+export const dynamic = "force-dynamic";
 
-export default function ProductDetailPage({
+const client = createClient({
+  projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID || "hqniptmy",
+  dataset: process.env.NEXT_PUBLIC_SANITY_DATASET || "production",
+  apiVersion: "2024-01-01",
+  useCdn: false,
+});
+
+interface BlouseItem {
+  _id: string;
+  name: string;
+  price: string;
+  description?: string;
+  inStock?: boolean;
+}
+
+export default async function BlouseDetailPage({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
-  const resolvedParams = React.use(params);
-  const productId = Number(resolvedParams.id);
-  const product = products.find((p) => p.id === productId) || products[0];
+  const { id } = await params;
 
-  const { addToCart } = useCart();
-  const [size, setSize] = useState("M");
-  const [added, setAdded] = useState(false);
+  let blouses: BlouseItem[] = [];
+  let blouse: BlouseItem | null = null;
 
-  const handleAdd = () => {
-    addToCart({
-      id: product.id,
-      name: product.name,
-      price: product.price,
-      size,
-      image: product.image,
-    });
-    setAdded(true);
-    setTimeout(() => setAdded(false), 2000);
-  };
+  try {
+    blouses = await client.fetch(
+      `*[_type == "blouse"]{
+        _id,
+        name,
+        price,
+        description,
+        inStock
+      }`,
+    );
+    blouse = blouses.find((b) => b._id === id) || null;
+  } catch (error) {
+    console.error("Error fetching blouse details:", error);
+  }
+
+  // مصفوفة الصور المحلية
+  const localProducts = [
+    "/products/1.jpeg",
+    "/products/2.jpeg",
+    "/products/3.jpeg",
+  ];
+
+  // معرفة ترتيب البلوزة عشان نعرض نفس الصورة المحددة
+  const blouseIndex = blouses.findIndex((b) => b._id === id);
+  const imageSrc =
+    blouseIndex !== -1
+      ? localProducts[blouseIndex % localProducts.length]
+      : localProducts[0];
+
+  if (!blouse) {
+    return (
+      <div className="max-w-3xl mx-auto px-6 py-20 text-center space-y-4">
+        <h2 className="text-2xl font-serif font-bold text-[#2a2c24]">
+          Blouse Not Found
+        </h2>
+        <Link
+          href="/collection"
+          className="text-xs uppercase tracking-wider font-bold text-[#6b705c] underline"
+        >
+          Back to Collection
+        </Link>
+      </div>
+    );
+  }
 
   return (
-    <div className="max-w-3xl mx-auto px-6 pt-6 pb-12 space-y-6 text-left">
+    <div className="max-w-4xl mx-auto px-6 py-12 space-y-8">
       <Link
         href="/collection"
-        className="inline-flex items-center gap-1 text-xs text-[#6b705c]"
+        className="text-xs font-bold uppercase tracking-wider text-[#6b705c] hover:underline inline-block"
       >
-        <ArrowLeft size={14} /> Back
+        ← Back to Collection
       </Link>
 
-      <div className="grid md:grid-cols-2 gap-6 items-center">
+      <div className="grid md:grid-cols-2 gap-8 items-start bg-[#f2efe9]/40 p-6 rounded-3xl border border-[#e2ded5]">
         <img
-          src={product.image}
-          alt={product.name}
-          className="w-full h-80 object-cover rounded-2xl border border-[#e2ded5]"
+          src={imageSrc}
+          alt={blouse.name}
+          className="w-full h-96 object-cover rounded-2xl"
         />
 
-        <div className="space-y-4 text-xs">
-          <div>
-            <h1 className="text-xl font-serif font-bold text-[#2a2c24]">
-              {product.name}
+        <div className="space-y-6">
+          <div className="space-y-2">
+            <span className="text-xs uppercase tracking-wider font-bold text-[#6b705c]">
+              Pure Linen Blouse
+            </span>
+            <h1 className="text-2xl md:text-3xl font-serif font-bold text-[#2a2c24]">
+              {blouse.name}
             </h1>
-            <p className="text-sm font-bold text-[#3f4236] mt-1">
-              {product.price} EGP
+            <p className="text-xl font-bold text-[#3f4236]">
+              {blouse.price} EGP
             </p>
           </div>
 
-          <p className="text-[#3f4236]/80 leading-relaxed">{product.desc}</p>
+          <p className="text-xs text-[#3f4236]/80 leading-relaxed">
+            {blouse.description ||
+              "Handcrafted minimal blouse made with natural organic linen for maximal comfort and effortless everyday luxury."}
+          </p>
 
-          <div className="space-y-1.5">
-            <span className="font-bold text-[10px] text-[#3f4236] uppercase">
-              Size
-            </span>
-            <div className="flex gap-2">
-              {["S", "M", "L", "XL"].map((s) => (
-                <button
-                  key={s}
-                  onClick={() => setSize(s)}
-                  className={`w-8 h-8 rounded-lg font-bold border transition cursor-pointer ${size === s ? "bg-[#2a2c24] text-white" : "bg-[#f7f5f0]"}`}
-                >
-                  {s}
-                </button>
-              ))}
+          <div className="space-y-3 pt-4 border-t border-[#e2ded5]">
+            <p className="text-xs font-bold text-[#2a2c24]">Payment Method:</p>
+            <div className="flex gap-3 text-xs font-medium text-[#3f4236]">
+              <span className="px-3 py-1.5 bg-[#e2ded5] rounded-lg">
+                💵 Cash on Delivery
+              </span>
+              <span className="px-3 py-1.5 bg-[#e2ded5] rounded-lg">
+                📱 InstaPay
+              </span>
             </div>
           </div>
 
-          <button
-            onClick={handleAdd}
-            className={`w-full py-3 rounded-xl font-bold uppercase transition flex justify-center items-center gap-2 cursor-pointer ${added ? "bg-green-700 text-white" : "bg-[#2a2c24] text-[#f4f1de]"}`}
+          <Link
+            href={`/checkout?product=${encodeURIComponent(
+              blouse.name,
+            )}&price=${blouse.price}`}
+            className="w-full bg-[#2a2c24] text-[#f4f1de] py-3 rounded-xl text-xs font-bold uppercase tracking-wider hover:bg-[#3f4236] transition block text-center"
           >
-            <ShoppingBag size={14} /> {added ? "Added!" : "Add to Bag"}
-          </button>
+            Order Now (Cash / InstaPay)
+          </Link>
         </div>
       </div>
     </div>
