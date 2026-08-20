@@ -1,115 +1,88 @@
 "use client";
 
-import React, { useState } from "react";
-import { useCart } from "../context/CartContext";
+import React from "react";
+import Link from "next/link";
 import { ShoppingBag } from "lucide-react";
+import { useCart } from "../context/CartContext";
 
-const PRODUCTS = [
+const blouses = [
   {
     id: 1,
-    name: "Olive Earth Linen Shirt",
-    price: 850,
-    category: "Tops",
-    image:
-      "https://images.unsplash.com/photo-1598554747436-c9293d6a588f?auto=format&fit=crop&q=80&w=600",
+    name: "Sand Minimalist Linen Blouse",
+    price: 1100,
+    image: "/products/1.jpeg",
   },
   {
     id: 2,
-    name: "Sand Minimalist Kimono",
-    price: 1200,
-    category: "Outerwear",
-    image:
-      "https://images.unsplash.com/photo-1434389677669-e08b4cac3105?auto=format&fit=crop&q=80&w=600",
+    name: "Olive Earth Cotton Blouse",
+    price: 980,
+    image: "/products/2.jpeg",
   },
   {
     id: 3,
-    name: "Forest Shade Trousers",
-    price: 950,
-    category: "Bottoms",
-    image:
-      "https://images.unsplash.com/photo-1509631179647-0177331693ae?auto=format&fit=crop&q=80&w=600",
-  },
-  {
-    id: 4,
-    name: "Naturals Cotton Tote",
-    price: 400,
-    category: "Accessories",
-    image:
-      "https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&q=80&w=600",
+    name: "Terracotta Wrap Linen Blouse",
+    price: 1050,
+    image: "/products/3.jpeg",
   },
 ];
-
 export default function CollectionPage() {
-  const [selectedCategory, setSelectedCategory] = useState("All");
   const { addToCart } = useCart();
 
-  const filtered =
-    selectedCategory === "All"
-      ? PRODUCTS
-      : PRODUCTS.filter((p) => p.category === selectedCategory);
-
   return (
-    <div className="max-w-6xl mx-auto px-6 pt-12 pb-20 space-y-10">
-      <div className="text-center space-y-3">
-        <h1 className="text-4xl font-serif font-bold text-[#2a2c24]">
-          The Collection
+    <div className="max-w-5xl mx-auto px-6 pt-8 pb-16 space-y-8 text-center">
+      {/* Header */}
+      <div className="space-y-2">
+        <h1 className="text-3xl md:text-4xl font-serif font-bold text-[#2a2c24]">
+          The Blouse Collection
         </h1>
-        <p className="text-sm text-[#6b705c]">
-          Carefully crafted garments inspired by nature.
+        <p className="text-xs text-[#3f4236]/70">
+          Pure linen & organic cotton blouses designed for everyday ease.
         </p>
       </div>
 
-      {/* Filter Tabs */}
-      <div className="flex justify-center gap-3 border-b border-[#e8ebe0] pb-4">
-        {["All", "Tops", "Outerwear", "Bottoms", "Accessories"].map((cat) => (
-          <button
-            key={cat}
-            onClick={() => setSelectedCategory(cat)}
-            className={`px-4 py-1.5 text-xs rounded-full transition cursor-pointer ${
-              selectedCategory === cat
-                ? "bg-[#3f4236] text-white"
-                : "bg-[#e8ebe0]/50 text-[#3f4236] hover:bg-[#e8ebe0]"
-            }`}
-          >
-            {cat}
-          </button>
-        ))}
-      </div>
-
       {/* Products Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {filtered.map((item) => (
+      <div className="grid md:grid-cols-3 gap-6 text-left">
+        {blouses.map((blouse) => (
           <div
-            key={item.id}
-            className="bg-white rounded-2xl border border-[#e8ebe0] overflow-hidden flex flex-col justify-between hover:shadow-lg transition"
+            key={blouse.id}
+            className="bg-[#f2efe9]/60 rounded-2xl border border-[#e2ded5] overflow-hidden space-y-3 p-3 transition hover:shadow-md"
           >
-            <div className="h-72 overflow-hidden bg-[#f6f7f3]">
+            <Link href={`/collection/${blouse.id}`}>
               <img
-                src={item.image}
-                alt={item.name}
-                className="w-full h-full object-cover hover:scale-105 transition duration-500"
+                src={blouse.image}
+                alt={blouse.name}
+                className="w-full h-72 object-cover rounded-xl"
               />
-            </div>
-            <div className="p-4 space-y-3">
-              <div>
-                <span className="text-[10px] uppercase tracking-wider text-[#6b705c]">
-                  {item.category}
-                </span>
-                <h3 className="font-serif font-semibold text-sm text-[#2a2c24]">
-                  {item.name}
-                </h3>
-                <p className="text-sm font-bold text-[#3f4236] mt-1">
-                  {item.price} EGP
-                </p>
-              </div>
+            </Link>
 
-              <button
-                onClick={() => addToCart(item)}
-                className="w-full bg-[#3f4236] text-white text-xs font-medium py-2.5 rounded-xl hover:bg-[#6b705c] transition flex items-center justify-center gap-2 cursor-pointer"
-              >
-                <ShoppingBag size={15} /> Add to Cart
-              </button>
+            <div className="px-1 space-y-1">
+              <span className="text-[10px] uppercase tracking-wider font-bold text-[#6b705c]">
+                Blouse
+              </span>
+              <Link href={`/collection/${blouse.id}`}>
+                <h3 className="font-serif font-bold text-sm text-[#2a2c24] hover:text-[#6b705c] transition">
+                  {blouse.name}
+                </h3>
+              </Link>
+              <p className="font-bold text-xs text-[#3f4236]">
+                {blouse.price} EGP
+              </p>
             </div>
+
+            <button
+              onClick={() =>
+                addToCart({
+                  id: blouse.id,
+                  name: blouse.name,
+                  price: blouse.price,
+                  size: "M",
+                  image: blouse.image,
+                })
+              }
+              className="w-full bg-[#2a2c24] text-[#f4f1de] py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider hover:bg-[#3f4236] transition flex items-center justify-center gap-2 cursor-pointer"
+            >
+              <ShoppingBag size={14} /> Add to Bag
+            </button>
           </div>
         ))}
       </div>
