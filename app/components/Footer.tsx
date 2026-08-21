@@ -146,6 +146,14 @@ export default function Footer() {
                 Shipping & Delivery Rates
               </Link>
             </li>
+            <li className="pt-2 border-t border-[#3f4236]/60">
+              <Link
+                href="/admin"
+                className="text-[#ddb892] hover:text-white transition flex items-center gap-1 font-bold"
+              >
+                <span>✦ Duja Admin Portal</span>
+              </Link>
+            </li>
           </ul>
         </div>
 

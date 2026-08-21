@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { StoreProvider } from "./context/StoreContext";
 import { CartProvider } from "./context/CartContext";
 import CartDrawer from "./components/CartDrawer";
 import AuthModal from "./components/AuthModal";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
+import AnnouncementBar from "./components/AnnouncementBar";
 
 export const metadata: Metadata = {
   title: "Duja | Sustainable Minimalist Fashion",
@@ -19,22 +21,27 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="bg-[#f7f5f0] text-[#2a2c24] font-sans antialiased min-h-screen flex flex-col justify-between selection:bg-[#6b705c] selection:text-white">
-        <CartProvider>
-          {/* Sticky Glassmorphic Navbar */}
-          <Navbar />
+        <StoreProvider>
+          <CartProvider>
+            {/* Dynamic Announcement Banner */}
+            <AnnouncementBar />
 
-          {/* Slide-out Cart Drawer */}
-          <CartDrawer />
+            {/* Sticky Glassmorphic Navbar */}
+            <Navbar />
 
-          {/* Minimalist Auth Modal */}
-          <AuthModal />
+            {/* Slide-out Cart Drawer */}
+            <CartDrawer />
 
-          {/* Dynamic Page Contents */}
-          <main className="flex-grow">{children}</main>
+            {/* Minimalist Auth Modal */}
+            <AuthModal />
 
-          {/* Global Footer with Newsletter & Legal links */}
-          <Footer />
-        </CartProvider>
+            {/* Dynamic Page Contents */}
+            <main className="flex-grow">{children}</main>
+
+            {/* Global Footer with Newsletter & Legal links */}
+            <Footer />
+          </CartProvider>
+        </StoreProvider>
       </body>
     </html>
   );

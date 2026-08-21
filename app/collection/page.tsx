@@ -2,46 +2,69 @@
 
 import React, { useState, useMemo } from "react";
 import Link from "next/link";
-import { ShoppingBag, Eye, SlidersHorizontal, ArrowUpDown, X, Check } from "lucide-react";
+import {
+  ShoppingBag,
+  Eye,
+  SlidersHorizontal,
+  ArrowUpDown,
+  X,
+  Check,
+} from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { PRODUCTS, Product } from "../data/products";
+import { Product } from "../data/products";
 import { useCart } from "../context/CartContext";
+import { useStore } from "../context/StoreContext";
 import QuickViewModal from "../components/QuickViewModal";
 
 export default function CollectionPage() {
   const { addToCart } = useCart();
+  const { products } = useStore();
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
   const [selectedSize, setSelectedSize] = useState<string>("All");
   const [selectedColor, setSelectedColor] = useState<string>("All");
-  const [sortBy, setSortBy] = useState<"featured" | "low-high" | "high-low">("featured");
-  const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null);
+  const [sortBy, setSortBy] = useState<"featured" | "low-high" | "high-low">(
+    "featured",
+  );
+  const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(
+    null,
+  );
   const [isFilterMobileOpen, setIsFilterMobileOpen] = useState<boolean>(false);
   const [addedId, setAddedId] = useState<string | null>(null);
 
-  const categories = ["All", "Blouses", "Tops", "Dresses", "Trousers", "Outerwear"];
+  const categories = [
+    "All",
+    "Blouses",
+    "Tops",
+    "Dresses",
+    "Trousers",
+    "Outerwear",
+  ];
   const sizes = ["All", "S", "M", "L", "XL"];
   const colors = ["All", "Sand", "Olive", "Terracotta", "Natural", "Charcoal"];
 
   // Filter & Sort Logic
   const filteredProducts = useMemo(() => {
-    return PRODUCTS.filter((product) => {
+    return products.filter((product) => {
       const matchCat =
         selectedCategory === "All" || product.category === selectedCategory;
       const matchSize =
         selectedSize === "All" ||
-        product.sizes.includes(selectedSize as any);
+        (product.sizes as string[]).includes(selectedSize);
       const matchColor =
         selectedColor === "All" ||
-        product.colors.includes(selectedColor as any);
+        (product.colors as string[]).includes(selectedColor);
       return matchCat && matchSize && matchColor;
     }).sort((a, b) => {
       if (sortBy === "low-high") return a.price - b.price;
       if (sortBy === "high-low") return b.price - a.price;
       return (b.featured ? 1 : 0) - (a.featured ? 1 : 0);
     });
-  }, [selectedCategory, selectedSize, selectedColor, sortBy]);
+  }, [products, selectedCategory, selectedSize, selectedColor, sortBy]);
 
-  const handleQuickAdd = (product: Product, size: "S" | "M" | "L" | "XL" = "M") => {
+  const handleQuickAdd = (
+    product: Product,
+    size: "S" | "M" | "L" | "XL" = "M",
+  ) => {
     addToCart({
       id: product.id,
       name: product.name,
@@ -80,11 +103,12 @@ export default function CollectionPage() {
           The Organic Linen Capsule
         </h1>
         <p className="text-xs md:text-sm text-[#3f4236]/80 leading-relaxed">
-          Explore timeless silhouettes woven from pure Egyptian flax and unbleached organic cotton. Designed for versatile daily luxury.
+          Explore timeless silhouettes woven from pure Egyptian flax and
+          unbleached organic cotton. Designed for versatile daily luxury.
         </p>
       </motion.div>
 
-      {/* Filter Toolbar (Top Bar for Quick Access & Mobile Toggle) */}
+      {/* Filter Toolbar */}
       <div className="bg-[#e2ded5]/40 backdrop-blur-md border border-[#e2ded5] p-4 rounded-2xl flex flex-wrap justify-between items-center gap-4">
         {/* Mobile Filter Toggle */}
         <button
@@ -117,7 +141,11 @@ export default function CollectionPage() {
             <ArrowUpDown size={14} className="text-[#6b705c]" />
             <select
               value={sortBy}
-              onChange={(e: any) => setSortBy(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+                setSortBy(
+                  e.target.value as "featured" | "low-high" | "high-low",
+                )
+              }
               className="bg-transparent text-[#2a2c24] font-semibold outline-none cursor-pointer"
             >
               <option value="featured">Sort: Featured</option>
@@ -139,9 +167,9 @@ export default function CollectionPage() {
         </div>
       </div>
 
-      {/* Main Content Layout (Sidebar Filters + Responsive Grid) */}
+      {/* Main Content Layout */}
       <div className="grid md:grid-cols-4 gap-8 items-start">
-        {/* Filter Sidebar (Desktop & Mobile Drawer) */}
+        {/* Filter Sidebar */}
         <aside
           className={`space-y-6 md:block ${
             isFilterMobileOpen ? "block" : "hidden md:block"
@@ -220,18 +248,20 @@ export default function CollectionPage() {
               🌿 Duja Craft Commitment
             </span>
             <p className="text-[#3f4236]/80 leading-relaxed text-[10px]">
-              Every garment is made to order or crafted in small limited batches to eliminate waste.
+              Every garment is made to order or crafted in small limited batches
+              to eliminate waste.
             </p>
           </div>
         </aside>
 
-        {/* Product Grid (3 cols on desktop when sidebar active, total 4 cols layout) */}
+        {/* Product Grid */}
         <div className="md:col-span-3 space-y-6">
-          {/* Results count */}
           <div className="flex justify-between items-center text-xs text-[#6b705c]">
             <span>Showing {filteredProducts.length} sustainable items</span>
             {selectedCategory !== "All" && (
-              <span className="font-bold text-[#2a2c24]">Category: {selectedCategory}</span>
+              <span className="font-bold text-[#2a2c24]">
+                Category: {selectedCategory}
+              </span>
             )}
           </div>
 
@@ -266,7 +296,6 @@ export default function CollectionPage() {
                     key={product.id}
                     className="group bg-white rounded-3xl border border-[#e2ded5] overflow-hidden flex flex-col justify-between shadow-xs hover:shadow-xl transition-all duration-500 relative"
                   >
-                    {/* Image Container with Hover Slow Zoom */}
                     <div className="relative h-80 bg-[#f6f7f3] overflow-hidden cursor-pointer">
                       <Link href={`/collection/${product.id}`}>
                         <img
@@ -276,12 +305,10 @@ export default function CollectionPage() {
                         />
                       </Link>
 
-                      {/* Floating Category Badge */}
                       <span className="absolute top-3 left-3 bg-white/85 backdrop-blur-md px-3 py-1 rounded-full text-[10px] font-bold tracking-widest text-[#2a2c24] uppercase border border-white/40 shadow-xs">
                         {product.category}
                       </span>
 
-                      {/* Quick Action Overlay Bar on Hover */}
                       <div className="absolute inset-x-3 bottom-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex gap-2">
                         <button
                           onClick={() => setQuickViewProduct(product)}
@@ -292,7 +319,6 @@ export default function CollectionPage() {
                       </div>
                     </div>
 
-                    {/* Content Section */}
                     <div className="p-5 space-y-3 flex-1 flex flex-col justify-between">
                       <div className="space-y-1">
                         <Link href={`/collection/${product.id}`}>
@@ -317,7 +343,6 @@ export default function CollectionPage() {
                         </div>
                       </div>
 
-                      {/* Minimalist Add to Cart Button */}
                       <button
                         onClick={() => handleQuickAdd(product)}
                         className={`w-full py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer ${

@@ -4,14 +4,16 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { ArrowUpRight, Leaf, Sparkles, Heart, Eye, ShoppingBag, ShieldCheck } from "lucide-react";
 import { motion } from "framer-motion";
-import { PRODUCTS, Product } from "./data/products";
+import { Product } from "./data/products";
 import QuickViewModal from "./components/QuickViewModal";
 import { useCart } from "./context/CartContext";
+import { useStore } from "./context/StoreContext";
 
 export default function Home() {
   const { addToCart } = useCart();
+  const { products, settings } = useStore();
   const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null);
-  const featuredProducts = PRODUCTS.filter((p) => p.featured);
+  const featuredProducts = products.filter((p) => p.featured);
 
   return (
     <div className="space-y-20 pb-16">
@@ -59,7 +61,7 @@ export default function Home() {
 
             {/* Floating Glass Badges inside Banner */}
             <div className="absolute top-6 left-6 bg-white/85 backdrop-blur-md px-4 py-1.5 rounded-full text-[10px] font-bold tracking-widest text-[#2a2c24] uppercase border border-white/50 shadow-xs">
-              Editorial Capsule
+              {settings.heroBadgeText || "Editorial Capsule"}
             </div>
 
             <div className="absolute bottom-6 left-6 right-6 md:right-auto bg-white/85 backdrop-blur-md px-6 py-3 rounded-2xl border border-white/50 flex items-center justify-between gap-6 shadow-xs">

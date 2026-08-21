@@ -6,6 +6,7 @@ import { ArrowLeft, ShoppingBag, Check, ShieldCheck, Truck, RefreshCw } from "lu
 import { motion } from "framer-motion";
 import { PRODUCTS, Product } from "../../data/products";
 import { useCart } from "../../context/CartContext";
+import { useStore } from "../../context/StoreContext";
 
 export default function BlouseDetailPage({
   params,
@@ -14,8 +15,9 @@ export default function BlouseDetailPage({
 }) {
   const { id } = use(params);
   const { addToCart } = useCart();
+  const { getProductById, products } = useStore();
   
-  const product: Product = PRODUCTS.find((p) => p.id === id) || PRODUCTS[0];
+  const product: Product = getProductById(id) || products.find((p) => p.id === id) || PRODUCTS[0];
   const [selectedSize, setSelectedSize] = useState<"S" | "M" | "L" | "XL">(
     product.sizes[0] || "M"
   );

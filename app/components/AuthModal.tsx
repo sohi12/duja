@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, User, Mail, Lock, ArrowRight, CheckCircle2, LogOut } from "lucide-react";
 import { useCart } from "../context/CartContext";
@@ -81,9 +82,17 @@ export default function AuthModal() {
                 </div>
               </div>
 
+              <Link
+                href="/admin"
+                onClick={() => setIsAuthOpen(false)}
+                className="w-full bg-[#2a2c24] text-[#ddb892] py-3 rounded-xl text-xs font-bold uppercase tracking-wider hover:bg-[#3f4236] transition duration-300 flex items-center justify-center gap-2 cursor-pointer shadow-md"
+              >
+                <Lock size={15} /> Open Admin Dashboard
+              </Link>
+
               <button
                 onClick={logout}
-                className="w-full bg-[#3f4236] text-[#f4f1de] py-3 rounded-xl text-xs font-bold uppercase tracking-wider hover:bg-red-800 transition duration-300 flex items-center justify-center gap-2 cursor-pointer shadow-md"
+                className="w-full bg-[#e2ded5]/60 text-[#3f4236] py-3 rounded-xl text-xs font-bold uppercase tracking-wider hover:bg-red-800 hover:text-white transition duration-300 flex items-center justify-center gap-2 cursor-pointer"
               >
                 <LogOut size={16} /> Sign Out
               </button>
